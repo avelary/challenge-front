@@ -59,7 +59,8 @@ export function ProductImage({
   }
 
   // Se é URL normal, usar Next.js Image com otimização
-  const imageUrl = src.startsWith('http') ? src : `http://localhost:3333${src}`
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'
+  const imageUrl = src.startsWith('http') ? src : `${apiUrl}${src}`
 
   return (
     <Image

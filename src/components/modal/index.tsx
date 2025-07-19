@@ -107,7 +107,8 @@ export const ProductModal = ({ open, setOpen }: ProductModalProps) => {
     try {
       const parsedData = productSchema.parse(formState)
 
-      const response = await fetch('http://localhost:3333/products', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'
+      const response = await fetch(`${apiUrl}/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
