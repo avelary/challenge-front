@@ -23,7 +23,7 @@ const productFormSchema = z.object({
   include: z.string().optional(),
   datasheet: z.string().optional(),
   status: z.string().default('pending'),
-  image: z.any().optional(), // Para o arquivo de imagem
+  image: z.unknown().optional(), // Para o arquivo de imagem
 })
 
 export type ProductFormData = z.infer<typeof productFormSchema>
@@ -110,9 +110,10 @@ export function useProductForm() {
       setSubmitSuccess(true)
       setSelectedImage(null)
       form.reset()
-    } catch (error: any) {
+    } catch (error: unknown) {
       setSubmitError(
-        error.response?.data?.message || 'Erro ao cadastrar produto'
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Erro ao cadastrar produto'
       )
     } finally {
       setIsSubmitting(false)

@@ -39,9 +39,10 @@ export function useAIProductGeneration() {
 
       setGeneratedProduct(response.data)
       return response.data
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage =
-        error.response?.data?.message || 'Erro ao analisar imagem com IA'
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Erro ao analisar imagem com IA'
       setGenerationError(errorMessage)
       throw new Error(errorMessage)
     } finally {
