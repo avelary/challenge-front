@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost'], // ou seu domínio real
+    domains: ['localhost', 'challenge-api-production-c89a.up.railway.app'], // ou seu domínio real
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
@@ -10,6 +10,11 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '3333',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'challenge-api-production-c89a.up.railway.app',
         pathname: '/uploads/**',
       },
     ],
