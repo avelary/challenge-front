@@ -26,6 +26,13 @@ export function useAIProductGeneration() {
     useState<AIGeneratedProduct | null>(null)
 
   const analyzeProductImage = async (imageFiles: File[]) => {
+    // Prevenir chamadas duplicadas
+    if (isGenerating) {
+      console.log('⚠️ Análise já em andamento, ignorando nova chamada')
+      return
+    }
+
+    console.log(`🚀 Iniciando análise de ${imageFiles.length} imagem(ns)`)
     setIsGenerating(true)
     setGenerationError(null)
     setGeneratedProduct(null)
@@ -36,6 +43,7 @@ export function useAIProductGeneration() {
       // Verificar se é uma única imagem ou múltiplas
       if (imageFiles.length === 1) {
         // Usar endpoint original para uma imagem
+        console.log('📡 Usando endpoint: /products/generate-ai (imagem única)')
         formData.append('image', imageFiles[0])
 
         const response = await api.post('/products/generate-ai', formData, {
@@ -44,11 +52,20 @@ export function useAIProductGeneration() {
           },
         })
 
+        console.log('✅ Resposta recebida do endpoint de imagem única')
         setGeneratedProduct(response.data)
         return response.data
       } else {
         // Usar novo endpoint para múltiplas imagens
-        imageFiles.forEach((file) => {
+        console.log(
+          `📡 Usando endpoint: /products/generate-ai-multiple (${imageFiles.length} imagens)`
+        )
+        imageFiles.forEach((file, index) => {
+          console.log(
+            `📎 Adicionando arquivo ${index + 1}: ${file.name} (${
+              file.size
+            } bytes)`
+          )
           formData.append('images', file)
         })
 
@@ -62,16 +79,20 @@ export function useAIProductGeneration() {
           }
         )
 
+        console.log('✅ Resposta recebida do endpoint de múltiplas imagens')
         setGeneratedProduct(response.data)
         return response.data
       }
     } catch (error: unknown) {
+      console.error('❌ Erro na análise de imagem:', error)
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response
           ?.data?.message || 'Erro ao analisar imagem com IA'
+      console.error('❌ Mensagem de erro:', errorMessage)
       setGenerationError(errorMessage)
       throw new Error(errorMessage)
     } finally {
+      console.log('🔄 Finalizando análise, resetando isGenerating')
       setIsGenerating(false)
     }
   }

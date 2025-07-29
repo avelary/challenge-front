@@ -72,9 +72,12 @@ export default function RegisterProductPage() {
     ? getCategoriesByClassification(watchedClassification)
     : []
 
-  const handleImageAnalysis = async (imageFile: File) => {
+  const handleImageAnalysis = async (imageFiles: File[]) => {
     try {
-      await analyzeProductImage(imageFile)
+      console.log(
+        `🎯 handleImageAnalysis chamada com ${imageFiles.length} arquivo(s)`
+      )
+      await analyzeProductImage(imageFiles)
     } catch (error) {
       console.log(error)
       // Erro já está sendo tratado no hook
@@ -276,7 +279,7 @@ export default function RegisterProductPage() {
                 <div className="mt-3 p-3 bg-blue-900/20 border border-blue-700/50 rounded-md">
                   <p className="text-sm text-blue-300">
                     <span className="font-medium">Tipo selecionado:</span>{' '}
-                    {productTypes.find(t => t.value === watchedType)?.label}
+                    {productTypes.find((t) => t.value === watchedType)?.label}
                     {availableClassifications.length > 0 && (
                       <span className="ml-2 text-blue-400">
                         ({availableClassifications.length} classificações
@@ -295,7 +298,7 @@ export default function RegisterProductPage() {
                     </span>{' '}
                     {
                       availableClassifications.find(
-                        c => c.value === watchedClassification
+                        (c) => c.value === watchedClassification
                       )?.label
                     }
                     {availableCategories.length > 0 && (
