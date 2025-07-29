@@ -8,6 +8,8 @@ import {
   Eye,
   Clock,
   AlertTriangle,
+  Images,
+  Image as ImageIcon,
 } from 'lucide-react'
 
 interface AIGeneratedProduct {
@@ -25,6 +27,8 @@ interface AIGeneratedProduct {
   rateLimitHit?: boolean
   originalClassification: string
   originalCategory: string
+  totalImagesProcessed?: number
+  imagesUsedForAnalysis?: number
 }
 
 interface AIGeneratedProductProps {
@@ -67,6 +71,22 @@ export function AIGeneratedProduct({
           description:
             'Produto identificado através da análise visual da imagem com OpenAI Vision.',
           color: 'purple',
+        }
+      case 'ai-vision-multiple':
+        return {
+          icon: <Images className="h-4 w-4 text-purple-400" />,
+          title: 'Análise Visual Múltipla com IA',
+          description:
+            'Produto identificado através da análise de múltiplas imagens com OpenAI Vision para maior precisão.',
+          color: 'purple',
+        }
+      case 'ai-vision-single-fallback':
+        return {
+          icon: <ImageIcon className="h-4 w-4 text-blue-400" />,
+          title: 'Análise Visual (Fallback)',
+          description:
+            'Produto identificado com análise de uma imagem após falha na análise múltipla.',
+          color: 'blue',
         }
       case 'smart-fallback':
         return {
@@ -111,6 +131,24 @@ export function AIGeneratedProduct({
           <span>{formatDate(product.createdAt)}</span>
         </div>
       </div>
+
+      {/* Multiple Images Info */}
+      {product.totalImagesProcessed && product.totalImagesProcessed > 1 && (
+        <div className="mb-4 p-3 bg-purple-900/20 border border-purple-700/50 rounded-md">
+          <div className="flex items-center space-x-2">
+            <Images className="h-4 w-4 text-purple-400" />
+            <span className="text-sm text-purple-300 font-medium">
+              Análise com Múltiplas Imagens
+            </span>
+          </div>
+          <p className="text-xs text-purple-200 mt-1">
+            {product.totalImagesProcessed} imagens processadas.
+            {product.imagesUsedForAnalysis && product.imagesUsedForAnalysis > 1
+              ? ` ${product.imagesUsedForAnalysis} imagens foram analisadas em conjunto pela IA para gerar uma descrição mais precisa.`
+              : ` A primeira imagem foi utilizada para análise devido a limitações técnicas.`}
+          </p>
+        </div>
+      )}
 
       {/* Rate Limit Warning */}
       {product.rateLimitHit && (
@@ -246,8 +284,8 @@ export function AIGeneratedProduct({
             onClick={onAnalyzeAnother}
             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center space-x-2"
           >
-            <Eye className="h-4 w-4" />
-            <span>Analisar Outra Imagem</span>
+            <Images className="h-4 w-4" />
+            <span>Analisar Outras Imagens</span>
           </button>
           <button
             onClick={onClose}

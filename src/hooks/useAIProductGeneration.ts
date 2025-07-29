@@ -14,6 +14,9 @@ interface AIGeneratedProduct {
   aiAnalyzed: boolean
   originalClassification: string
   originalCategory: string
+  totalImagesProcessed?: number
+  imagesUsedForAnalysis?: number
+  analysisMethod?: string
 }
 
 export function useAIProductGeneration() {
@@ -22,23 +25,46 @@ export function useAIProductGeneration() {
   const [generatedProduct, setGeneratedProduct] =
     useState<AIGeneratedProduct | null>(null)
 
-  const analyzeProductImage = async (imageFile: File) => {
+  const analyzeProductImage = async (imageFiles: File[]) => {
     setIsGenerating(true)
     setGenerationError(null)
     setGeneratedProduct(null)
 
     try {
       const formData = new FormData()
-      formData.append('image', imageFile)
 
-      const response = await api.post('/products/generate-ai', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      // Verificar se é uma única imagem ou múltiplas
+      if (imageFiles.length === 1) {
+        // Usar endpoint original para uma imagem
+        formData.append('image', imageFiles[0])
 
-      setGeneratedProduct(response.data)
-      return response.data
+        const response = await api.post('/products/generate-ai', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+
+        setGeneratedProduct(response.data)
+        return response.data
+      } else {
+        // Usar novo endpoint para múltiplas imagens
+        imageFiles.forEach((file) => {
+          formData.append('images', file)
+        })
+
+        const response = await api.post(
+          '/products/generate-ai-multiple',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        )
+
+        setGeneratedProduct(response.data)
+        return response.data
+      }
     } catch (error: unknown) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response
