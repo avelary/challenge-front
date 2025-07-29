@@ -45,10 +45,10 @@ export function AIImageAnalyzer({
       return
     }
 
-    // Verificar limite máximo (5 imagens)
+    // Verificar limite máximo (3 imagens)
     const newImages = [...selectedImages, ...imageFiles]
-    if (newImages.length > 5) {
-      alert('Máximo de 5 imagens permitidas')
+    if (newImages.length > 3) {
+      alert('Máximo de 3 imagens permitidas')
       return
     }
 
@@ -146,7 +146,7 @@ export function AIImageAnalyzer({
               Formatos suportados: JPG, PNG, WEBP (máx. 10MB por imagem)
             </p>
             <p className="text-xs text-purple-400 font-medium">
-              📸 Envie de 2 a 5 imagens para uma análise mais precisa
+              📸 Envie até 3 imagens para análise completa
             </p>
           </div>
         </div>
