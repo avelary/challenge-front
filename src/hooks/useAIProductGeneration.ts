@@ -2,21 +2,43 @@ import { useState } from 'react'
 import { api } from '@/services'
 
 interface AIGeneratedProduct {
-  idsku: number
+  idsku: string
   title: string
-  productType: string
+  productType: 'souvenir' | 'menu' | 'vestuario'
+  idcl: number
+  idca: number
+  idPartner: number
+  idPrinter: number | null
+  measure: string
+  quantity: number | null
   price: number
   offer: number
   description: string
-  status: string
-  createdAt: string
-  aiGenerated: boolean
-  aiAnalyzed: boolean
-  originalClassification: string
-  originalCategory: string
-  totalImagesProcessed?: number
-  imagesUsedForAnalysis?: number
+  remove: string | null
+  include: string | null
+  datasheet: string | null
+  status: 'Pendente' | 'Ativo' | 'Inativo'
+  image: string | null
   analysisMethod?: string
+}
+
+// 🍽️ NOVA: Interface para resposta de OCR de cardápio
+interface MenuOCRResponse {
+  success: boolean
+  products: AIGeneratedProduct[]
+  summary: {
+    totalProductsFound: number
+    totalProductsSaved: number
+    ocrMethod: string
+    ocrConfidence: number
+    extractedText?: string
+  }
+  performance: {
+    imageOptimizationMs: number
+    ocrProcessingMs: number
+    bulkSaveMs: number
+    totalTimeMs: number
+  }
 }
 
 export function useAIProductGeneration() {
@@ -24,6 +46,11 @@ export function useAIProductGeneration() {
   const [generationError, setGenerationError] = useState<string | null>(null)
   const [generatedProduct, setGeneratedProduct] =
     useState<AIGeneratedProduct | null>(null)
+
+  // 🍽️ NOVA: Estado para OCR de cardápio
+  const [menuOCRResult, setMenuOCRResult] = useState<MenuOCRResponse | null>(
+    null
+  )
 
   const analyzeProductImage = async (imageFiles: File[]) => {
     // Prevenir chamadas duplicadas
@@ -60,6 +87,7 @@ export function useAIProductGeneration() {
         console.log(
           `📡 Usando endpoint: /products/generate-ai-multiple (${imageFiles.length} imagens)`
         )
+
         imageFiles.forEach((file, index) => {
           console.log(
             `📎 Adicionando arquivo ${index + 1}: ${file.name} (${
@@ -97,16 +125,66 @@ export function useAIProductGeneration() {
     }
   }
 
+  // 🍽️ NOVA: Função específica para OCR de cardápio
+  const analyzeMenuImage = async (imageFile: File) => {
+    if (isGenerating) {
+      console.log('⚠️ Análise já em andamento, ignorando nova chamada')
+      return
+    }
+
+    console.log('🍽️ Iniciando análise de CARDÁPIO')
+    setIsGenerating(true)
+    setGenerationError(null)
+    setGeneratedProduct(null)
+    setMenuOCRResult(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('images', imageFile) // Note: usa 'images' não 'image'
+
+      console.log('📡 Usando endpoint: /products/bulk-menu-ocr (CARDÁPIO)')
+      console.log(`📎 Arquivo: ${imageFile.name} (${imageFile.size} bytes)`)
+
+      const response = await api.post('/products/bulk-menu-ocr', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      console.log('✅ Resposta recebida do endpoint de cardápio')
+      console.log(
+        `🎯 Produtos cadastrados: ${response.data.products?.length || 0}`
+      )
+
+      setMenuOCRResult(response.data)
+      return response.data
+    } catch (error: unknown) {
+      console.error('❌ Erro na análise de cardápio:', error)
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Erro ao analisar cardápio com IA'
+      console.error('❌ Mensagem de erro:', errorMessage)
+      setGenerationError(errorMessage)
+      throw new Error(errorMessage)
+    } finally {
+      console.log('🔄 Finalizando análise de cardápio')
+      setIsGenerating(false)
+    }
+  }
+
   const clearGeneration = () => {
     setGeneratedProduct(null)
     setGenerationError(null)
+    setMenuOCRResult(null) // 🍽️ NOVA: Limpar resultado do cardápio
   }
 
   return {
     analyzeProductImage,
+    analyzeMenuImage, // 🍽️ NOVA: Função para cardápio
     isGenerating,
     generationError,
     generatedProduct,
+    menuOCRResult, // 🍽️ NOVA: Resultado do cardápio
     clearGeneration,
   }
 }

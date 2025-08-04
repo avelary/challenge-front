@@ -7,7 +7,7 @@ import { useState } from 'react'
 const productFormSchema = z.object({
   title: z
     .string()
-    .min(6, 'Título deve ter pelo menos 6 caracteres')
+    .min(2, 'Título deve ter pelo menos 2 caracteres')
     .max(100, 'Título deve ter no máximo 100 caracteres'),
   productType: z.string().min(1, 'Tipo do produto é obrigatório'),
   classification: z.string().min(1, 'Classificação é obrigatória'),

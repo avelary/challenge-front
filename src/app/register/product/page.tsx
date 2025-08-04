@@ -7,6 +7,7 @@ import { FormSelect } from '@/components/ui/form-select'
 import { FormFileUpload } from '@/components/ui/form-file-upload'
 import { AIGeneratedProduct } from '@/components/ui/ai-generated-product'
 import { AIImageAnalyzer } from '@/components/ui/ai-image-analyzer'
+import { MenuOCRAnalyzer } from '@/components/ui/menu-ocr-analyzer'
 import {
   productTypes,
   getClassificationsByType,
@@ -139,6 +140,32 @@ export default function RegisterProductPage() {
               onAnalyzeAnother={clearGeneration}
             />
           )}
+        </div>
+
+        {/* 🍽️ NOVA SEÇÃO: OCR de Cardápio */}
+        <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-4 sm:p-6">
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-green-600 rounded-lg">
+                <span className="text-white text-lg">🍽️</span>
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">
+                  OCR de Cardápio
+                </h2>
+                <p className="text-gray-400 text-sm">
+                  Cadastre múltiplos produtos de uma só vez com foto do cardápio
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <MenuOCRAnalyzer
+            onMenuAnalyzeComplete={(result) => {
+              console.log('🍽️ Cardápio analisado:', result)
+              // Opcional: mostrar notificação de sucesso
+            }}
+          />
         </div>
 
         {/* Formulário Manual */}
